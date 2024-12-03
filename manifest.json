@@ -1,0 +1,53 @@
+{
+    "name": "Anime Tracker",
+    "short_name": "Anime",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "lang": "en", 
+    "scope": "/",
+    "orientation": "portrait",
+    "theme_color": "#ff7043",
+    "description": "Track your favorite anime effortlessly.",
+    "icons": [
+      {
+        "src": "icon.png",
+        "sizes": "192x192",
+        "type": "image/png"
+      },
+      {
+        "src": "icon-256x256.png",
+        "sizes": "256x256",
+        "type": "image/png"
+      },
+      {
+        "src": "icon-384x384.png",
+        "sizes": "384x384",
+        "type": "image/png"
+      },
+      {
+        "src": "icon-512x512.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      }
+    ],
+    "screenshots": [
+      {
+        "src": "screenshot1.png",
+        "sizes": "640x480",
+        "type": "image/png"
+      },
+      {
+        "src": "screenshot2.png",
+        "sizes": "1280x720",
+        "type": "image/png"
+      }
+    ],
+    "related_applications": [
+      {
+        "platform": "Web",
+        "url": "https://example.com/related-app"
+      }
+    ]
+  }
+  

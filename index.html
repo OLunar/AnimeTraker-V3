@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KitsuneLuna Anime Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="/manifest.json"> <!-- Link to manifest.json -->
+    <!-- Firebase App (the core Firebase SDK)-->
+    <script src="https://www.gstactic.com/firebasejs/9.1.0/firebase-app.js"></script>
+    <!-- Firebase Authentication -->
+    <script src="https://www.gstactic.com/firebasejs/9.1.0/firebase-auth.js"></script>
+    <!-- Firebase Cloud Messaging-->
+    <script src="https://www.gstatic.com/firebasejs/9.1.0./firebase-messaging.js"></script>
+</head>
+<body>
+    <nav>
+        <div class="nav-wrapper">
+            <div class="banner-text" style="background-color: rgba(255, 255, 255, 0.8); padding: 10px; border-radius: 5px; color: #000;">
+                <a href="#" class="brand-logo center">KitsuneLuna Anime Tracker</a>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <ul class="tabs">
+            <li class="tab col s3"><a href="#all">All</a></li>
+            <li class="tab col s3"><a href="#watched">Watched</a></li>
+            <li class="tab col s3"><a href="#in-progress">In Progress</a></li>
+            <li class="tab col s3"><a href="#dropped">Dropped</a></li>
+            <li class="tab col s3"><a href="#plan-to-watch">Plan to Watch</a></li>
+        </ul>
+        <h2>Anime List</h2>
+        <div class="row">
+            <div class="input-field col s12">
+                <input id="anime-name" type="text">
+                <label for="anime-name">Anime Name</label>
+            </div>
+        </div>
+        <div class="row card-container" id="anime-list">
+            <!-- Anime cards will go here -->
+        </div>
+        <button class="btn-floating btn-large red" id="add-anime-btn" style="transition: transform 0.3s ease-in-out;">
+            <i class="material-icons">add</i>
+        </button>
+    </div>
+    <!-- Sign-In Form-->
+    <div>
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="signIn(document.getElementById('email').value, document.getElemntById('password'),value)">Sign In</button>
+    </div>
+    <!-- Sign Out Button-->
+     <button onclick="signOut()">Sign Out</button>
+
+     <!-- Request Notification Permission Button-->
+      <button onclick="requestNotificationPermission()">enable Notifications</button>
+    </div>
+</div>
+    <!-- Modal Structure -->
+    <div id="status-modal" class="modal">
+        <div class="modal-content" style="background-color: #fff; border-radius: 8px; padding: 20px;">
+            <h4>Update Status</h4>
+            <div class="input-field col s12">
+                <select id="anime-status">
+                    <option value="" disabled selected>Choose your option</option>
+                    <option value="Watched">Watched</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Dropped">Dropped</option>
+                    <option value="Plan to Watch">Plan to Watch</option>
+                </select>
+                <label for="anime-status">Status</label>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <a href="#!" class="modal-close waves-effect waves-green btn-flat" id="save-status-btn" style="background-color: #ff7043; color: #fff;">Save</a>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/service-worker.js')
+                .then(function(registration) {
+                    console.log('Service Worker registered with scope:', registration.scope);
+                }).catch(function(error) {
+                    console.log('Service Worker registration failed:', error);
+                });
+        }
+
+        //Initialize tabs
+        document.addEventListener('DOMContentLoaded', function() {
+            M.Tabs.init(document.querySelectorAll('.tabs'));
+        });
+    </script>
+</body>
+</html>

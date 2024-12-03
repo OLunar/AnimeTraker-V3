@@ -1,0 +1,154 @@
+body {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),url(sakura.miku.png);
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Center content vertically */
+    align-items: center; /* Center content horizontally */
+    min-height: 100vh;
+    background-size: cover;
+    background-repeat: repeat;
+    pointer-events: auto;
+    z-index: -1;
+}
+
+nav {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+    background: none;
+}
+
+.banner-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Ensures the image covers the entire banner area */
+    position: relative;
+    top: 0;
+    left: 0;
+}
+
+.banner-text {
+    background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
+    padding: 10px;
+    border-radius: 5px;
+    position: relative;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: rgb(202, 4, 4);
+    text-shadow: 2px 2px 4px rgba(247, 5, 174, 0.952); /* Adds a shadow to make the text stand out */
+}
+
+.container {
+    flex: 1;
+    padding-top: 20px;
+}
+
+.input-field input[type="text"]:hover {
+    border-color: #6600ff;
+    background-color: rgba(255, 255, 255, 0.397);
+    color: #000;
+    padding: 12px;
+    border: 4px solid #9e05f7;
+    border-radius: 8px;
+}
+
+.input-field label {
+    color: #000;
+}
+
+#add-anime-btn:hover, .remove-btn:hover {
+    transform: scale(1.1);
+    position: relative;
+    bottom: 20px;
+    right: 20px;
+}
+
+.card {
+    border: 2px solid #ccc; /*add border */
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+    margin: 10px;
+    transition: transform 0.3s ease-in-out;
+    position: relative;
+}
+.card-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around; /*Align in a grid */
+}
+
+.card:hover {
+    transform: scale(1.05);
+}
+
+.remove-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+}
+
+.modal-content {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.modal-footer .btn-flat {
+    background-color: #ff7043;
+    color: #fff;
+}
+
+.modal-footer .remove-btn:hover {
+    background-color: #ff5722;
+}
+
+@media (max-width: 768px) {
+    .banner-text {
+        font-size: 1.2em;
+    }
+
+    .card {
+        width: 100%;
+    }
+
+    #add-anime-btn {
+        right: 10px;
+        bottom: 10px;
+    }
+
+}
+
+.tabs .tabs a {
+    color: #ff7043; /* Tab text color */
+}
+
+.tabs .tab a:hover {
+    background-color: #ff7043; /* Background color on hover */
+    color: #fff;
+}
+
+.tabs .tab a.active {
+    background-color: #ff7043; /* Active tab background color */
+    color: #fff;
+}
+
+.tabs .indicator {
+    background-color: #ff7043; /* Indicator color */
+}
