@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KitsuneLuna Anime Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="/style.e308ff8e.css">
+    <link rel="manifest" href="/manifest.js"> <!-- Link to manifest.json -->
+
+    <!-- Favicon-->
+    <link rel="icon" href="/favicon.ico.e8623678.png" type="image/x-icon">
+
+    <!-- PWA Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192x192.f7afd520.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/icon-512x512.31d6ebc1.png">
+
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="theme-color" content="#ffffff">
+
+    <!-- Your custom script -->
+    <script type="module" src="/app.c328ef1a.js"></script>
+<script src="/style.e308ff8e.js"></script></head>
+<body>
+    <div class="background-overlay"></div> <!-- Added a background overlay -->
+    <nav>
+        <div class="nav-wrapper">
+            <a href="#" class="brand-logo center">KitsuneLuna Anime Tracker</a>
+            <ul id="nav-mobile" class="right hide-on-med-and-down">
+                <li><a href="#!" onclick="showSignInModal()">Sign In</a></li>
+                <li><a href="#!" onclick="showSignUpModal()">Sign Up</a></li>
+                <li><a href="#!" onclick="signOut()">Sign Out</a></li>
+                <li><a href="#!" onclick="requestNotificationPermission()">Enable Notifications</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container">
+        <ul class="tabs">
+            <li class="tab col s3"><a href="#all">All</a></li>
+            <li class="tab col s3"><a href="#watched">Watched</a></li>
+            <li class="tab col s3"><a href="#in-progress">In Progress</a></li>
+            <li class="tab col s3"><a href="#dropped">Dropped</a></li>
+            <li class="tab col s3"><a href="#plan-to-watch">Plan to Watch</a></li>
+        </ul>
+        <h2>Anime List</h2>
+        <div class="row">
+            <div class="input-field col s12">
+                <input id="anime-name" type="text" class="white-text"> <!-- Added white-text class -->
+                <label for="anime-name">Anime Name</label>
+            </div>
+        </div>
+        <div class="row card-container" id="anime-list">
+            <!-- Anime cards will go here -->
+        </div>
+        <button class="btn-floating btn-large red" id="add-anime-btn" style="transition: transform 0.3s ease-in-out;">
+            <i class="material-icons">add</i>
+        </button>
+    </div>
+
+    <!-- Sign-In Modal -->
+    <div id="sign-in-modal" class="modal">
+        <div class="modal-content">
+            <h4>Sign In</h4>
+            <div class="row">
+                <div class="input-field col s12">
+                    <input type="email" id="sign-in-email" placeholder="Email" class="white-text">
+                </div>
+                <div class="input-field col s12">
+                    <input type="password" id="sign-in-password" placeholder="Password" class="white-text">
+                </div>
+                <div class="input-field col s12">
+                    <button class="btn" onclick="signIn()">Sign In</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sign-Up Modal -->
+    <div id="sign-up-modal" class="modal">
+        <div class="modal-content">
+            <h4>Sign Up</h4>
+            <div class="row">
+                <div class="input-field col s12">
+                    <input type="email" id="sign-up-email" placeholder="Email" class="white-text">
+                </div>
+                <div class="input-field col s12">
+                    <input type="password" id="sign-up-password" placeholder="Password" class="white-text">
+                </div>
+                <div class="input-field col s12">
+                    <button class="btn" onclick="signUp()">Sign Up</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Update Modal -->
+    <div id="status-modal" class="modal">
+        <div class="modal-content">
+            <h4>Update Status</h4>
+            <div class="input-field col s12">
+                <select id="anime-status">
+                    <option value="" disabled="" selected="">Choose your option</option>
+                    <option value="Watched">Watched</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Dropped">Dropped</option>
+                    <option value="Plan to Watch">Plan to Watch</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <a href="#!" class="modal-close waves-effect waves-green btn" id="save-status-btn">Save</a>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script>if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register("/service-worker.js").then(function (registration) {
+    console.log('Service Worker registered with scope:', registration.scope);
+  }).catch(function (error) {
+    console.log('Service Worker registration failed:', error);
+  });
+}
+
+// Initialize tabs and modals
+document.addEventListener('DOMContentLoaded', function () {
+  M.Tabs.init(document.querySelectorAll('.tabs'));
+  M.Modal.init(document.querySelectorAll('.modal'));
+  M.FormSelect.init(document.querySelectorAll('select'));
+});
+function showSignInModal() {
+  var modal = M.Modal.getInstance(document.getElementById('sign-in-modal'));
+  modal.open();
+}
+function showSignUpModal() {
+  var modal = M.Modal.getInstance(document.getElementById('sign-up-modal'));
+  modal.open();
+}
+function signIn() {
+  var email = document.getElementById('sign-in-email').value;
+  var password = document.getElementById('sign-in-password').value;
+  // Sign in logic here
+}
+function signUp() {
+  var email = document.getElementById('sign-up-email').value;
+  var password = document.getElementById('sign-up-password').value;
+  // Sign up logic here
+}
+function signOut() {
+  // Sign out logic here
+}
+function requestNotificationPermission() {
+  if (Notification.permission !== 'granted') {
+    Notification.requestPermission().then(function (permission) {
+      if (permission === 'granted') {
+        alert('Notifications enabled!');
+      }
+    });
+  }
+}</script>
+</body>
+</html>

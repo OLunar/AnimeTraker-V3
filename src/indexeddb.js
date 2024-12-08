@@ -1,4 +1,4 @@
-import { openDB } from 'https://cdn.jsdelivr.net/npm/idb/build/iife/index-min.js';
+import { openDB } from 'idb'; // Correct import path for idb
 
 const dbPromise = openDB('anime-tracker', 1, {
     upgrade(db) {
@@ -34,11 +34,12 @@ export async function updateAnimeInIndexedDB(id, updateData) {
         console.error('Error updating anime in IndexedDB:', error);
     }
 }
+
 export async function deleteAnimeFromIndexedDB(id) {
     try {
         const db = await dbPromise;
         await db.delete('animeList', id);
     } catch (error) {
-        console.error('Error deleting anime from IndexedDB', error);
+        console.error('Error deleting anime from IndexedDB:', error);
     }
 }

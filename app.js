@@ -1,6 +1,9 @@
-import { db, collection, addDoc, getDocs, updateDoc, deleteDoc} from './src/firebase.js';
+import { db, collection, addDoc, getDocs, updateDoc, deleteDoc } from './src/firebase.js';
 import { addAnimeToIndexedDB, getAnimeFromIndexedDB, updateAnimeInIndexedDB, deleteAnimeFromIndexedDB } from './src/indexeddb.js';
-import axios from 'axios'; // Importing axios
+import axios from 'axios'; // Ensure axios is correctly imported
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
+
+const auth = getAuth();
 
 // Function to fetch anime data
 async function fetchAnimeData(animeId) {
@@ -71,7 +74,48 @@ if ('serviceWorker' in navigator) {
         });
 }
 
-// Document ready function
+// Function to sign in
+function signIn() {
+    const email = document.getElementById('sign-in-email').value;
+    const password = document.getElementById('sign-in-password').value;
+    signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            console.log('Signed in:', userCredential.user);
+        })
+        .catch((error) => {
+            console.error('Error signing in:', error);
+        });
+}
+
+// Function to sign up
+function signUp() {
+    const email = document.getElementById('sign-up-email').value;
+    const password = document.getElementById('sign-up-password').value;
+    createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            console.log('Signed up:', userCredential.user);
+        })
+        .catch((error) => {
+            console.error('Error signing up:', error);
+        });
+}
+
+// Function to sign out
+function signOutUser() {
+    signOut(auth)
+        .then(() => {
+            console.log('Signed out');
+        })
+        .catch((error) => {
+            console.error('Error signing out:', error);
+        });
+}
+
+// Add event listeners for auth buttons
+document.getElementById('sign-in-btn').addEventListener('click', signIn);
+document.getElementById('sign-up-btn').addEventListener('click', signUp);
+document.getElementById('sign-out-btn').addEventListener('click', signOutUser);
+
 document.addEventListener('DOMContentLoaded', function() {
     M.updateTextFields();
     M.Modal.init(document.querySelectorAll('.modal'));
@@ -100,6 +144,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Add click event listener to add-anime button
     document.getElementById('add-anime-btn').addEventListener('click', () => {
+        console.log('Add Anime button clicked');
         const animeName = document.getElementById('anime-name').value;
         const animeThumbnail = 'placeholder-image.png'; // Placeholder image for now
         if (animeName) {
@@ -112,8 +157,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Example of how to call fetchAnimeData
-    async function loadAnimeData() {
-        const animeId = 'some-id'; // Replace with actual anime ID
+    async function loadAnimeData(animeId) {
         const animeData = await fetchAnimeData(animeId);
         if (animeData) {
             console.log('Fetched anime data:', animeData);
@@ -122,12 +166,22 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Example of how to call requestNotificationPermission
-    document.getElementById('enable-notifications-btn').addEventListener('click', requestNotificationPermission);
+    document.getElementById('enable-notifications-btn').addEventListener('click', () => {
+        console.log('Enable Notifications button clicked');
+        requestNotificationPermission();
+    });
+
+    // Add click event listener to fetch-anime button
+    document.getElementById('fetch-anime-btn').addEventListener('click', () => {
+        const animeId = document.getElementById('anime-id').value; // Assuming you have an input field with ID 'anime-id'
+        loadAnimeData(animeId); // Call loadAnimeData with the actual anime ID
+    });
 });
 
 // Filter by category
 document.querySelectorAll('.tabs a').forEach(tab => {
     tab.addEventListener('click', () => {
+        console.log('Tab clicked:', tab.getAttribute('href').substring(1));
         const category = tab.getAttribute('href').substring(1);
         document.querySelectorAll('.card').forEach(card => {
             if (category === 'all' || card.classList.contains(category)) {
@@ -159,6 +213,7 @@ function addAnimeCard(name, thumbnail, status) {
     
     // Add event listener for status update
     animeCard.querySelector('.card').addEventListener('click', () => {
+        console.log('Anime card clicked');
         const modal = M.Modal.getInstance(document.getElementById('status-modal'));
         modal.open();
         document.getElementById('save-status-btn').onclick = () => {
@@ -195,6 +250,7 @@ function addAnimeCard(name, thumbnail, status) {
     // Add event listener for removing anime card 
     animeCard.querySelector('.remove-btn').addEventListener('click', (event) => {
         event.stopPropagation(); // Prevent triggering the card click event
+        console.log('Remove button clicked');
         animeCard.remove();
 
         // Remove from Firebase or IndexedDB
