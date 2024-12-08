@@ -1,4 +1,4 @@
-const CACHE_NAME = 'anime-tracker-v2';
+const CACHE_NAME = 'anime-tracker-v3';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -12,7 +12,7 @@ const urlsToCache = [
   '/src/indexeddb/indexeddb.js'
 ];
 
-// Install a service worker
+// Install the service worker and cache specified resources
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -23,25 +23,27 @@ self.addEventListener('install', event => {
   );
 });
 
-// Cache and return requests
+// Fetch event: cache-first strategy with fallback to network
 self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
-      .then(response => {
-        return response || fetch(event.request).then(async fetchResponse => {
-          const cache = await caches.open(CACHE_NAME);
+    .then(response => {
+      return response || fetch(event.request).then(fetchResponse => {
+        return caches.open(CACHE_NAME).then(cache => {
           cache.put(event.request, fetchResponse.clone());
           return fetchResponse;
         });
-      })
-      .catch(() => {
-        // Fallback mechanism if both cache and network are unavailable
-        return caches.match('/offline.html');
-      })
+      });
+    })
+    .catch(error => {
+      console.error('Fetching failed:', error);
+      //Fallback to offline page
+      return caches.match('/offline.html');
+    })
   );
 });
 
-// Update the service worker
+// Activate event: update the service worker and clear old caches
 self.addEventListener('activate', event => {
   const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(

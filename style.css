@@ -1,96 +1,118 @@
 body {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),url(sakura.miku.png);
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    position: relative;
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('sakura.miku.png') no-repeat center center fixed;
+    background-size: cover;
+    color: #fff;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
-    justify-content: center; /* Center content vertically */
-    align-items: center; /* Center content horizontally */
-    min-height: 100vh;
-    background-size: cover;
-    background-repeat: repeat;
-    pointer-events: auto;
+    justify-content: center; 
+    align-items: center; 
     z-index: -1;
 }
 
 nav {
     position: relative;
-    height: 200px;
-    overflow: hidden;
-    background: none;
+    height: 60px;
+    background-color: rgba(0, 0, 0, 0.8);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
-.banner-image {
-    width: 100%;
-    height: 100%;
-    object-fit: contain; /* Ensures the image covers the entire banner area */
-    position: relative;
-    top: 0;
-    left: 0;
+.nav-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
 }
 
-.banner-text {
-    background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
-    padding: 10px;
-    border-radius: 5px;
-    position: relative;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: rgb(202, 4, 4);
-    text-shadow: 2px 2px 4px rgba(247, 5, 174, 0.952); /* Adds a shadow to make the text stand out */
+.brand-logo {
+    color: #ff7043;
+    font-size: 1.5em;
+    font-weight: bold;
+    text-transform: uppercase;
 }
 
 .container {
     flex: 1;
-    padding-top: 20px;
+    padding: 20px;
+    width: 100%;
 }
 
-.input-field input[type="text"]:hover {
-    border-color: #6600ff;
-    background-color: rgba(255, 255, 255, 0.397);
-    color: #000;
-    padding: 12px;
-    border: 4px solid #9e05f7;
+.input-field input[type="text"] {
+    border: 2px solid #ff7043;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    padding: 10px;
     border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.input-field input[type="text"]:hover, 
+.input-field input[type="text"]:focus {
+    background-color: rgba(255, 255, 255, 0.4);
+    outline: none;
+    border-color: #ff5722;
 }
 
 .input-field label {
-    color: #000;
+    color: #ff7043;
+}
+
+#add-anime-btn, .remove-btn {
+    background-color: #ff7043;
+    border-radius: 50%;
+    transition: transform 0.3s ease-in-out;
 }
 
 #add-anime-btn:hover, .remove-btn:hover {
-    transform: scale(1.1);
-    position: relative;
-    bottom: 20px;
-    right: 20px;
+    transform: scale(1.2);
 }
 
 .card {
-    border: 2px solid #ccc; /*add border */
-    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
-    margin: 10px;
+    border: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    margin: 15px;
     transition: transform 0.3s ease-in-out;
-    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: rgba(255, 255, 255, 0.1);
 }
+
 .card-container {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-around; /*Align in a grid */
+    justify-content: center; 
 }
 
 .card:hover {
     transform: scale(1.05);
 }
 
+.card-image img {
+    width: 100%;
+    height: auto;
+}
+
+.card-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #ff7043;
+}
+
+.card-content {
+    padding: 15px;
+    color: #fff;
+}
+
 .remove-btn {
     position: absolute;
     top: 10px;
     right: 10px;
+    background-color: #ff7043;
+    color: #fff;
+    cursor: pointer;
 }
 
 body::before {
@@ -105,9 +127,10 @@ body::before {
 }
 
 .modal-content {
-    background-color: #fff;
+    background-color: #282828;
     border-radius: 8px;
     padding: 20px;
+    color: #fff;
 }
 
 .modal-footer .btn-flat {
@@ -115,7 +138,7 @@ body::before {
     color: #fff;
 }
 
-.modal-footer .remove-btn:hover {
+.modal-footer .btn-flat:hover {
     background-color: #ff5722;
 }
 
@@ -132,23 +155,23 @@ body::before {
         right: 10px;
         bottom: 10px;
     }
-
+    
 }
 
-.tabs .tabs a {
-    color: #ff7043; /* Tab text color */
+.tabs .tab a {
+    color: #ff7043; 
 }
 
 .tabs .tab a:hover {
-    background-color: #ff7043; /* Background color on hover */
+    background-color: #ff7043;
     color: #fff;
 }
 
 .tabs .tab a.active {
-    background-color: #ff7043; /* Active tab background color */
+    background-color: #ff7043;
     color: #fff;
 }
 
 .tabs .indicator {
-    background-color: #ff7043; /* Indicator color */
+    background-color: #ff7043; 
 }

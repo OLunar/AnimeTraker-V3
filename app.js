@@ -1,98 +1,65 @@
-import { addDoc, collection, getDocs, updateDoc, deleteDoc, doc, db } from './firebase/firebase.js';
-import { addIndexedDB, getIndexedDBRecords, updateIndexedDBRecord, deleteIndexedDBRecord } from './indexeddb/indexeddb.js';
+import { db, collection, addDoc, getDocs, updateDoc, deleteDoc} from './src/firebase.js';
+import { addAnimeToIndexedDB, getAnimeFromIndexedDB, updateAnimeInIndexedDB, deleteAnimeFromIndexedDB } from './src/indexeddb.js';
+import axios from 'axios'; // Importing axios
 
-//Firebase configuration 
-var firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID", 
-    appId: "YOUR_APP_ID"
-};
+// Function to fetch anime data
+async function fetchAnimeData(animeId) {
+    try {
+        const response = await axios.get(`https://api.jikan.moe/v4/anime/${animeId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching anime data:", error);
+        return null;
+    }
+}
 
-//Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-
-//Initialize Firebase Messaging
-const messaging = firebase.messaging();
-
-// Request permission to send notifications 
+// Function to request notification permission
 function requestNotificationPermission() {
-    messaging.requestPermission()
-    .then(() => {
-        console.log('Notification permission granted.');
-        return messaging.getToken();
-    })
-    .then((token) => {
-        console.log('FCM Token:', token);
-        // Send token to server to save it & send notificaiton from there 
-    })
-    .catch((error) => {
-        console.error('Unable to get permission to notify.', error);
-    });
-}
-
-// Handle incoming messages 
-messaging.onMessage((payload) => {
-    console.log('Message received. ', payload);
-    const notificationTitle = payload.notification.title;
-    const notificationOptions = {
-        body: payload.notification.body, 
-        icon: payload.notification.icon
-    };
-})
-
-//Sign In function 
-function signIn(email, password) {
-    firebaseConfig.authDomain().singInWithEmailAndPassword(email, password).then((userCredential) => {
-        console.log("Signed in successfully:", userCredential.user);
-    })
-    .catch((error) => {
-        console.error("Error signing in:", error.code, error.message);
-    });
-}
-
-//Sign out Function 
-function signOut() {
-    firebaseConfig.authDomain().signOut().then(() => {
-        console.log("Signed out Successfully");
-    }).catch((error) => {
-        console.error("Error signing out:", error);
-    });
-}
-
-//Authentication state observer
-firebaseConfig.authDomain().onAuthStateChanged((user) => {
-    if (user) {
-        console.log("User is signed in:", user);
-        document.body.classList.add('signed-in');
-    } else {
-        console.log("User is signed out");
-        document.body.classList.remove('signed-in');
-    }
-});
-
-//Improved error handling 
-function handleAuthError(error) {
-    let errorMessage = '';
-    switch (error.code) {
-        case 'auth/invalid-email':
-            errorMessage = 'invalid email.';
-            break;
-        case 'auth/user-disabled':
-            errorMessage = 'The user account has been disabled.';
-            break;
-        case 'auth/user-not-found':
-            errorMessage = 'User not Found';
-            break;
-        case 'auth/wrong-password':
-            errorMessage = 'The password is invalid.';
-            break;
-        default:
-            errorMessage = 'Unexpected error, please try again.'       
+    if (Notification.permission !== 'granted') {
+        Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+                console.log('Notification permission granted.');
+            } else {
+                console.log('Notification permission denied.');
+            }
+        }).catch(error => {
+            console.error('Error requesting notification permission:', error);
+        });
     }
 }
+
+// Sync logic
+function isOnline() {
+    return navigator.onLine;
+}
+
+async function syncData() {
+    try {
+        if (isOnline()) {
+            const localData = await getAnimeFromIndexedDB();
+            for (const anime of localData) {
+                if (!anime.synced) {
+                    await addDoc(collection(db, 'animeList'), anime);
+                    anime.synced = true;
+                    await updateAnimeInIndexedDB(anime.id, anime);
+                }
+            }
+            notifySync();
+        }
+    } catch (error) {
+        console.error('Error syncing data:', error);
+    }
+}
+
+function notifySync() {
+    if (Notification.permission === 'granted') {
+        new Notification('Data synchronized with Firebase!');
+    }
+}
+
+window.addEventListener('online', syncData);
+window.addEventListener('offline', () => console.log('App is offline'));
+
 // Register the service worker
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/service-worker.js')
@@ -113,30 +80,49 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize tabs
     M.Tabs.init(document.querySelectorAll('.tabs'));
 
-    // Load anime list from local storage or Firebase
+    // Load anime list from IndexedDB or Firebase
     if (navigator.onLine) {
-        getDocs(collection(db, 'yourCollection')).then(querySnapshot => {
+        getDocs(collection(db, 'animeList')).then(querySnapshot => {
             querySnapshot.forEach(doc => {
                 const data = doc.data();
                 addAnimeCard(data.name, data.thumbnail, data.status);
             });
+        }).catch(error => {
+            console.error('Error loading data from Firebase:', error);
         });
     } else {
-        const animeList = JSON.parse(localStorage.getItem('animeList')) || [];
-        animeList.forEach(anime => addAnimeCard(anime.name, anime.thumbnail, anime.status));
+        getAnimeFromIndexedDB().then(animeList => {
+            animeList.forEach(anime => addAnimeCard(anime.name, anime.thumbnail, anime.status));
+        }).catch(error => {
+            console.error('Error loading data from IndexedDB:', error);
+        });
     }
+
     // Add click event listener to add-anime button
     document.getElementById('add-anime-btn').addEventListener('click', () => {
         const animeName = document.getElementById('anime-name').value;
         const animeThumbnail = 'placeholder-image.png'; // Placeholder image for now
         if (animeName) {
             addAnimeCard(animeName, animeThumbnail, '');
-            const newAnime = { name: animeName, thumbnail: animeThumbnail, status: '' };
+            const newAnime = { name: animeName, thumbnail: animeThumbnail, status: '', synced: false };
             addRecord(newAnime); // Add record to Firebase or IndexedDB
 
             document.getElementById('anime-name').value = ''; // Clear the input field
         }
     });
+
+    // Example of how to call fetchAnimeData
+    async function loadAnimeData() {
+        const animeId = 'some-id'; // Replace with actual anime ID
+        const animeData = await fetchAnimeData(animeId);
+        if (animeData) {
+            console.log('Fetched anime data:', animeData);
+            // Process and display anime data as needed
+        }
+    }
+
+    // Example of how to call requestNotificationPermission
+    document.getElementById('enable-notifications-btn').addEventListener('click', requestNotificationPermission);
 });
 
 // Filter by category
@@ -180,24 +166,26 @@ function addAnimeCard(name, thumbnail, status) {
             animeCard.querySelector('.anime-status').innerText = selectedStatus;
 
             // Update Firebase or IndexedDB 
-            const newAnime = { name, thumbnail, status: selectedStatus };
-            if (navigator.onLine) {
-                // Update Firebase
-                getDocs(collection(db, 'yourCollection')).then(querySnapshot => {
-                    querySnapshot.forEach(doc => {
-                        if (doc.data().name === name) {
-                            updateDoc(doc.ref, newAnime);
+            const newAnime = { name, thumbnail, status: selectedStatus, synced: false };
+            try {
+                if (navigator.onLine) {
+                    getDocs(collection(db, 'animeList')).then(querySnapshot => {
+                        querySnapshot.forEach(async doc => {
+                            if (doc.data().name === name) {
+                                await updateDoc(doc.ref, newAnime);
+                            }
+                        });
+                    });
+                } else {
+                    getAnimeFromIndexedDB().then(animeList => {
+                        const animeRecord = animeList.find(anime => anime.name === name);
+                        if (animeRecord) {
+                            updateAnimeInIndexedDB(animeRecord.id, newAnime);
                         }
                     });
-                });
-            } else{
-                // Update IndexedDB
-                getIndexedDBRecords().then(records => {
-                    const record = records.find(record => record.name === name);
-                    if (record) {
-                        updateIndexedDBRecord(record.id, newAnime);
-                    }
-                });
+                }
+            } catch (error) {
+                console.error('Error updating anime status:', error);
             }
 
             modal.close();
@@ -206,25 +194,29 @@ function addAnimeCard(name, thumbnail, status) {
 
     // Add event listener for removing anime card 
     animeCard.querySelector('.remove-btn').addEventListener('click', (event) => {
-        event.stopPropagation(); //Prevent triggering the card click event
+        event.stopPropagation(); // Prevent triggering the card click event
         animeCard.remove();
 
         // Remove from Firebase or IndexedDB
-        if (navigator.onLine) {
-            getDocs(collection(db, 'yourCollection')).then(querySnapshot => {
-                querySnapshot.forEach(doc => {
-                    if (doc.data().name === name) {
-                        deleteDoc(doc.ref);
+        try {
+            if (navigator.onLine) {
+                getDocs(collection(db, 'animeList')).then(querySnapshot => {
+                    querySnapshot.forEach(async doc => {
+                        if (doc.data().name === name) {
+                            await deleteDoc(doc.ref);
+                        }
+                    });
+                });
+            } else {
+                getAnimeFromIndexedDB().then(animeList => {
+                    const animeRecord = animeList.find(anime => anime.name === name);
+                    if (animeRecord) {
+                        deleteAnimeFromIndexedDB(animeRecord.id);
                     }
                 });
-            });
-        } else {
-            getIndexedDBRecords().then(records => {
-                const record = records.find(record => record.name === name);
-                if (record) {
-                    deleteIndexedDBRecord(record.id);
-                }
-            });
+            }
+        } catch (error) {
+            console.error('Error removing anime:', error);
         }
     });
 
@@ -233,21 +225,29 @@ function addAnimeCard(name, thumbnail, status) {
 
 // Functions for adding and syncing records
 async function addRecord(data) {
-    if (navigator.onLine) {
-        await addDoc(collection(db, 'yourCollection'), data);
-    } else {
-        await addIndexedDB(data);
+    try {
+        if (navigator.onLine) {
+            await addDoc(collection(db, 'animeList'), data);
+        } else {
+            await addAnimeToIndexedDB(data);
+        }
+    } catch (error) {
+        console.error('Error adding record:', error);
     }
 }
 
 async function syncOfflineData() {
-    if (navigator.onLine) {
-        const records = await getIndexedDBRecords();
-        for (const record of records) {
-            await addDoc(collection(db, 'yourCollection'), record);
-            await deleteIndexedDBRecord(record.id);
+    try {
+        if (navigator.onLine) {
+            const records = await getAnimeFromIndexedDB();
+            for (const record of records) {
+                await addDoc(collection(db, 'animeList'), record);
+                await deleteAnimeFromIndexedDB(record.id);
+            }
+            console.log('Offline data synced with Firebase.');
         }
-        console.log('Offline data synced with Firebase.');
+    } catch (error) {
+        console.error('Error syncing offline data:', error);
     }
 }
 

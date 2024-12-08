@@ -7,19 +7,37 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="/manifest.json"> <!-- Link to manifest.json -->
-    <!-- Firebase App (the core Firebase SDK)-->
-    <script src="https://www.gstactic.com/firebasejs/9.1.0/firebase-app.js"></script>
-    <!-- Firebase Authentication -->
-    <script src="https://www.gstactic.com/firebasejs/9.1.0/firebase-auth.js"></script>
-    <!-- Firebase Cloud Messaging-->
-    <script src="https://www.gstatic.com/firebasejs/9.1.0./firebase-messaging.js"></script>
+
+    <!-- Favicon-->
+    <link rel="icon" href="favicon.ico.png" type="image/x-icon">
+
+    <!-- PWA Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon-512x512.png">
+
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="theme-color" content="#ffffff">
+
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js"></script>
+    <!-- Firebase Firestore -->
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore.js"></script>
+    <!-- IDB library for IndexedDB operations -->
+    <script type="module" src="https://cdn.jsdelivr.net/npm/idb/build/iife/index-min.js"></script>
+    <!-- Your custom script -->
+    <script type="module" src="app.js"></script>
 </head>
 <body>
+    <div class="background-overlay"></div> <!-- Added a background overlay -->
     <nav>
         <div class="nav-wrapper">
-            <div class="banner-text" style="background-color: rgba(255, 255, 255, 0.8); padding: 10px; border-radius: 5px; color: #000;">
-                <a href="#" class="brand-logo center">KitsuneLuna Anime Tracker</a>
-            </div>
+            <a href="#" class="brand-logo center">KitsuneLuna Anime Tracker</a>
+            <ul id="nav-mobile" class="right hide-on-med-and-down">
+                <li><a href="#!" onclick="showSignInModal()">Sign In</a></li>
+                <li><a href="#!" onclick="showSignUpModal()">Sign Up</a></li>
+                <li><a href="#!" onclick="signOut()">Sign Out</a></li>
+                <li><a href="#!" onclick="requestNotificationPermission()">Enable Notifications</a></li>
+            </ul>
         </div>
     </nav>
     <div class="container">
@@ -33,7 +51,7 @@
         <h2>Anime List</h2>
         <div class="row">
             <div class="input-field col s12">
-                <input id="anime-name" type="text">
+                <input id="anime-name" type="text" class="white-text"> <!-- Added white-text class -->
                 <label for="anime-name">Anime Name</label>
             </div>
         </div>
@@ -44,22 +62,46 @@
             <i class="material-icons">add</i>
         </button>
     </div>
-    <!-- Sign-In Form-->
-    <div>
-        <input type="email" id="email" placeholder="Email">
-        <input type="password" id="password" placeholder="Password">
-        <button onclick="signIn(document.getElementById('email').value, document.getElemntById('password'),value)">Sign In</button>
-    </div>
-    <!-- Sign Out Button-->
-     <button onclick="signOut()">Sign Out</button>
 
-     <!-- Request Notification Permission Button-->
-      <button onclick="requestNotificationPermission()">enable Notifications</button>
+    <!-- Sign-In Modal -->
+    <div id="sign-in-modal" class="modal">
+        <div class="modal-content">
+            <h4>Sign In</h4>
+            <div class="row">
+                <div class="input-field col s12">
+                    <input type="email" id="sign-in-email" placeholder="Email" class="white-text">
+                </div>
+                <div class="input-field col s12">
+                    <input type="password" id="sign-in-password" placeholder="Password" class="white-text">
+                </div>
+                <div class="input-field col s12">
+                    <button class="btn" onclick="signIn()">Sign In</button>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
-    <!-- Modal Structure -->
+
+    <!-- Sign-Up Modal -->
+    <div id="sign-up-modal" class="modal">
+        <div class="modal-content">
+            <h4>Sign Up</h4>
+            <div class="row">
+                <div class="input-field col s12">
+                    <input type="email" id="sign-up-email" placeholder="Email" class="white-text">
+                </div>
+                <div class="input-field col s12">
+                    <input type="password" id="sign-up-password" placeholder="Password" class="white-text">
+                </div>
+                <div class="input-field col s12">
+                    <button class="btn" onclick="signUp()">Sign Up</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Update Modal -->
     <div id="status-modal" class="modal">
-        <div class="modal-content" style="background-color: #fff; border-radius: 8px; padding: 20px;">
+        <div class="modal-content">
             <h4>Update Status</h4>
             <div class="input-field col s12">
                 <select id="anime-status">
@@ -69,16 +111,14 @@
                     <option value="Dropped">Dropped</option>
                     <option value="Plan to Watch">Plan to Watch</option>
                 </select>
-                <label for="anime-status">Status</label>
             </div>
         </div>
         <div class="modal-footer">
-            <a href="#!" class="modal-close waves-effect waves-green btn-flat" id="save-status-btn" style="background-color: #ff7043; color: #fff;">Save</a>
+            <a href="#!" class="modal-close waves-effect waves-green btn" id="save-status-btn">Save</a>
         </div>
     </div>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-    <script src="app.js"></script>
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/service-worker.js')
@@ -89,10 +129,48 @@
                 });
         }
 
-        //Initialize tabs
+        // Initialize tabs and modals
         document.addEventListener('DOMContentLoaded', function() {
             M.Tabs.init(document.querySelectorAll('.tabs'));
+            M.Modal.init(document.querySelectorAll('.modal'));
+            M.FormSelect.init(document.querySelectorAll('select'));
         });
+
+        function showSignInModal() {
+            const modal = M.Modal.getInstance(document.getElementById('sign-in-modal'));
+            modal.open();
+        }
+
+        function showSignUpModal() {
+            const modal = M.Modal.getInstance(document.getElementById('sign-up-modal'));
+            modal.open();
+        }
+
+        function signIn() {
+            const email = document.getElementById('sign-in-email').value;
+            const password = document.getElementById('sign-in-password').value;
+            // Sign in logic here
+        }
+
+        function signUp() {
+            const email = document.getElementById('sign-up-email').value;
+            const password = document.getElementById('sign-up-password').value;
+            // Sign up logic here
+        }
+
+        function signOut() {
+            // Sign out logic here
+        }
+
+        function requestNotificationPermission() {
+            if (Notification.permission !== 'granted') {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        alert('Notifications enabled!');
+                    }
+                });
+            }
+        }
     </script>
 </body>
 </html>
